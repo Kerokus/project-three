@@ -12,7 +12,7 @@ module.exports = {
       password: 'docker',
       user: 'postgres',
       port: '5432',
-      database: 'project3_data' // !! THIS WILL BE <your database name>
+      database: 'tracker' // !! THIS WILL BE <your database name>
     }
   },
 
