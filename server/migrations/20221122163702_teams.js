@@ -19,7 +19,8 @@
  */
  exports.down = function(knex) {
     return knex.schema.alterTable('teams', table => {
-        table.dropForeign('mission_id');
+        table.dropForeign('team_lead');
+        table.dropForeign('mission_id')
     })
     .then (function() {
         return knex.schema.dropTableIfExists('teams');
