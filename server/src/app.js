@@ -102,6 +102,64 @@ app.delete('/teams/:id', async (req, res) => {
   }
 })
 
+//missions endpoint
+app.post('/missions', async (req, res) => {
+  try {
+    let newMission = {
+      location: req.body.location,
+      description: req.body.description,
+      start_date: req.body.start_date,
+      end_date: req.body.end_date
+    }
+    await knex('mission').insert(newMission);
+    res.status(201).send('Mission successfully created.')
+  } catch(e) {
+    console.log(e);
+    res.status(400).send(`Post failed`);
+  }
+})
+
+//personnel endpoint
+app.post('/personnel', async (req, res) => {
+  // const maxIdQuery = await knex('personnel').max('id as maxId').first();
+  // let num = maxIdQuery.maxId + 1;
+  try {
+    let newPersonnel = {
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      rank: req.body.rank,
+      mos: req.body.mos,
+      dep_start: req.body.dep_start,
+      dep_end: req.body.dep_end,
+      contact: req.body.contact,
+      team_id: req.body.team_id
+    }
+    await knex('personnel').insert(newPersonnel);
+    res.status(201).send('Personnel successfully created.')
+  } catch(e) {
+    console.log(e);
+    res.status(400).send(`Post failed`);
+  }
+})
+
+//teams endpoint
+app.post('/teams', async (req, res) => {
+
+})
+
+/* let newPersonnel = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    rank: req.body.rank
+    mos: req.body.mos
+    dep_start: req.body.dep_start
+    dep_end: req.body.dep_end
+    contact: req.body.contact
+    team_id: req.body.team_id
+
+} */
+
+// knex('personnel').insert([newPersonnel])
 
 
 
