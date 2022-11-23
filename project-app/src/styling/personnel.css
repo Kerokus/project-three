@@ -1,0 +1,11 @@
+.formRank {
+    text-transform: uppercase;
+}
+
+.formMOS {
+    text-transform: uppercase;
+}
+
+.table {
+    table-layout: 'fixed'
+}
