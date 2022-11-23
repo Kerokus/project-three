@@ -12,8 +12,8 @@
       table.date('dep_start');
       table.date('dep_end');
       table.string('contact', 250);
-      table.integer('team_id');
-      table.foreign('team_id').references('teams.id')
+      table.integer('team_id').defaultTo(1);
+      table.foreign('team_id').references('teams.id').onDelete("SET DEFAULT");
     });
   };
   
