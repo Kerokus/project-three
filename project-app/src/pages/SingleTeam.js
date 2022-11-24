@@ -1,8 +1,8 @@
-import React from 'react';
 import Card from 'react-bootstrap/Card';
+import React, { useState, useEffect } from "react";
 
 const SingleTeam = () => {
-  var htmlRender = '';
+  var htmlRender = [];
 
   // Gen test data 'til the API is setup.
   const objOneTeam = {
@@ -62,9 +62,7 @@ const SingleTeam = () => {
     ]
   }
 
-  //TOMORROW MOVE THE HTML TO OUR NEW VAR.
   return (
-//  htmlRender = 
     <><br />
     <div className="row row-cols-2 justify-content-center">
     <Card className="text-white bg-dark">
@@ -75,16 +73,20 @@ const SingleTeam = () => {
           Deployment Dates: {objOneTeam.start_date} - {objOneTeam.end_date}<br />
           Team Size: {objOneTeam.current_size}<br />
         </Card.Text>
-
-        {/* {objOneTeam.names.map(row => {
-     "<Card.Text>" + {row.rank} + "</Card.Text><br>";
-  })}
-
-         */}
+        <Card.Text>
+        Mission Desc: {objOneTeam.description}<br />
+        </Card.Text>
+       
 
         <Card.Footer>
-          Mission Desc: {objOneTeam.description}<br />
+          Team Members:<br />
+          <hr />
+          {objOneTeam.names.map(row => {
+            return <div>{row.rank} {row.first_name} {row.last_name}</div>
+          })}
         </Card.Footer>
+
+
         <Card.Link href="#">View Details</Card.Link>
         <Card.Link href="#">Delete Mission</Card.Link>
       </Card.Body>
@@ -97,19 +99,7 @@ const SingleTeam = () => {
   )
 }
 
-const BuildPersonnelJSX = (team) => {
-  return team.names.map(row => {
-    return "<br>";
-  })
-}
-
 export default SingleTeam
-
-// {objOneTeam.names.map((row) => {
-//   return (
-//     <Card.Text>{row.rank} {row.first_name} {row.last_name}</Card.Text><br>
-//   )
-//   })}
 
 
 

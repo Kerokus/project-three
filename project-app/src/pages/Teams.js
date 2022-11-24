@@ -1,8 +1,23 @@
 import React from 'react'
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+//import TeamContext from './TeamContext';
 
 const Teams = () => {
+  // const [teamData, setTeamData] = useState([])
+  // const [isLoading, setIsLoading] = useState(true)
+
+  // useEffect( () => {
+  //   setIsLoading(true)
+  //   let url = `http://localhost:8081/teams`
+
+  //   fetch(url)
+  //   .then(res => res.json())
+  //   .then(console.log(`TEAMS query: ${}`))
+  //   .then(data => setEventData(data.results))
+  //   .then(data => setIsLoading(false))
+  // }, [])
+
   return (
     <>
     <Card style={{ width: '18rem' }}>

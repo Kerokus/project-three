@@ -1,136 +1,230 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
-import BootstrapTable from 'react-bootstrap-table-next';
-
+import BootstrapTable from "react-bootstrap-table-next";
+import { json } from "react-router";
+import { Pen, Trash3 } from "react-bootstrap-icons";
 
 const PersonnelList = () => {
   const [show, setShow] = useState(false);
   const [validated, setValidated] = useState(false);
   const [formData, setFormData] = useState({});
+  const [personnelData, setPersonnelData] = useState([]);
+  const [refresh, setRefresh] = useState(false);
+  const [isAdd, setIsAdd] = useState(false);
 
-  const products = [ {
-    last_name: "King",
-    first_name: "Justin",
-    rank: "CW2",
-    mos: "351L",
-    team_id: "Unassigned",
-    contact: "justin.l.king14.mil@army.mil",
-    dep_start: "2022-01-01",
-    dep_end: "2022-09-01"
-  },
-  {
-    last_name: "Smith",
-    first_name: "John",
-    rank: "SSG",
-    mos: "35T",
-    team_id: "4",
-    contact: "thisemail3@myemail.com",
-    dep_start: "2022-04-01",
-    dep_end: "2023-01-01"
-  },
-  {
-    last_name: "Adams",
-    first_name: "Bill",
-    rank: "SGT",
-    mos: "35M",
-    team_id: "3",
-    contact: "thisemail2@myemail.com",
-    dep_start: "2022-02-01",
-    dep_end: "2022-10-01"
-  },
-];
-const columns = [
-  {
-    dataField: "last_name",
-    text: "Last Name",
-    sort: true,
-  },
-  {
-    dataField: "first_name",
-    text: "First Name",
-  },
-  {
-    dataField: "rank",
-    text: "Rank",
-    sort: true,
-    headerStyle: (column, colIndex) => {
-      return { width: '70px' };
+  //FETCH TABLE DATA
+  useEffect(() => {
+    fetch("http://localhost:8081/personnel")
+      .then((res) => res.json())
+      .then((data) => {
+        let dataSlice = data.map((item) => {
+          if (item.dep_start) {
+            item.dep_start = item.dep_start.slice(0, 10);
+            item.dep_end = item.dep_end.slice(0, 10);
+          }
+          return item;
+        });
+        setPersonnelData(dataSlice);
+      })
+      .catch((error) => {
+        console.error(error);
+        return [];
+      });
+  }, [refresh]);
+
+  //TABLE HEADERS
+  const columns = [
+    {
+      dataField: "last_name",
+      text: "Last Name",
+      sort: true,
+    },
+    {
+      dataField: "first_name",
+      text: "First Name",
+    },
+    {
+      dataField: "rank",
+      text: "Rank",
+      sort: true,
+      headerStyle: (column, colIndex) => {
+        return { width: "5%" };
+      },
+    },
+    {
+      dataField: "mos",
+      text: "MOS",
+      sort: true,
+      headerStyle: (column, colIndex) => {
+        return { width: "70px" };
+      },
+    },
+    {
+      dataField: "team_id",
+      text: "Team #",
+      sort: true,
+      headerStyle: (column, colIndex) => {
+        return { width: "100px" };
+      },
+    },
+    {
+      dataField: "contact",
+      text: "Email address",
+      sort: true,
+      headerStyle: (column, colIndex) => {
+        return { width: "300px" };
+      },
+    },
+    {
+      dataField: "dep_start",
+      text: "Deployment Start",
+      sort: true,
+      headerStyle: (column, colIndex) => {
+        return { width: "120px" };
+      },
+    },
+    {
+      dataField: "dep_end",
+      text: "Deployment End",
+      sort: true,
+      headerStyle: (column, colIndex) => {
+        return { width: "120px" };
+      },
+    },
+    {
+      dataField: "id",
+      formatter: (cell, row, rowIndex) => {
+        return (
+          <div className="form-buttons">
+            <Button
+              variant="secondary"
+              onClick={() => handleEditShow(cell)}
+            >
+              <Pen />
+            </Button>
+            <Button 
+              variant="danger" 
+              onClick={() => handleDelete(cell)}>
+              <Trash3 />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  ////DATA HANDLERS////
+
+  //Call this to refresh the table
+  const toggleRefresh = () => {
+    setRefresh((current) => !current);
+  };
+
+  //Open "Personnel" form
+  const handleShow = () => setShow(true);
+
+  //set Add State
+  const handleAdd = () => {
+    setIsAdd(true)
+    handleShow();
   }
-  },
-  {
-    dataField: "mos",
-    text: "MOS",
-    sort: true,
-    headerStyle: (column, colIndex) => {
-      return { width: '70px' };
-  }
-  },
-  {
-    dataField: "team_id",
-    text: "Team #",
-    sort: true,
-    headerStyle: (column, colIndex) => {
-      return { width: '100px' };
-  }
-  },
-  {
-    dataField: "contact",
-    text: "Email address",
-    sort: true,
-    headerStyle: (column, colIndex) => {
-      return { width: '300px' };
-  }},
-  {
-    dataField: "dep_start",
-    text: "Deployment Start",
-    sort: true,
-    headerStyle: (column, colIndex) => {
-      return { width: '120px' };
-  }
-  },
-  {
-    dataField: "dep_end",
-    text: "Deployment End",
-    sort: true,
-    headerStyle: (column, colIndex) => {
-      return { width: '120px' };
-  }
-  },
-];
-  
+
+  //Set state for the "Add personnel" form
+  const handleFormData = (event) => {
+    let newData = { ...formData };
+    newData[event.target.id] = event.target.value;
+    setFormData(newData);
+  };
+
+  //Close "Add personnel" form
   const handleClose = () => {
     setValidated(false);
     setShow(false);
     setFormData({});
   };
-  const handleShow = () => setShow(true);
 
-  const handleSubmit = (event) => {
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
+  //POST "Add personnel" data to the database
+  const handleSubmit = async (event) => {
+    try {
       event.preventDefault();
-      event.stopPropagation();
+      const form = event.currentTarget;
+      if (form.checkValidity() === false) {
+        event.stopPropagation();
+      }
+      setValidated(true);
+      let response = await fetch(isAdd ? "http://localhost:8081/personnel" : `http://localhost:8081/personnel/${formData.id}`, {
+        method: isAdd ? "POST" : "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      setFormData({});
+      handleClose();
+      toggleRefresh();
+      if (response.status !== 201) {
+        throw new Error();
+      }
+    } catch (error) {
+      console.log(error);
     }
-    setValidated(true);
   };
 
-  const handleFormData = (event) => {
-    let newData = { ...formData };
-    newData[event.target.id] = event.target.value;
-    setFormData(newData);
-    console.log(formData);
+  //EDIT existing person within database
+  const handleEditShow = async (fieldId) => {
+    setIsAdd(false);
+    try {
+      let response = await fetch(`http://localhost:8081/personnel/${fieldId}`)
+      .then((res) => {
+        if (res.status !== 200) {
+          throw new Error
+        }
+        return res.json() 
+      })
+      .then((data) => {
+        let dataSlice = data.map((item) => {
+          if (item.dep_start) {
+            item.dep_start = item.dep_start.slice(0, 10);
+            item.dep_end = item.dep_end.slice(0, 10);
+          }
+          return item;
+        });
+        setFormData(dataSlice[0]);
+      })
+      handleShow()
+    } catch (error) {
+      
+    }
+  }
+
+  //DELETE person from database
+  const handleDelete = async (fieldId) => {
+    try {
+      let response = await fetch(`http://localhost:8081/personnel/${fieldId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      toggleRefresh();
+      if (response.status !== 202) {
+        throw new Error();
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <>
       <h1>Current Deployed Personnel</h1>
 
-      <Button variant="primary" onClick={handleShow}>
+      <Button variant="primary" onClick={handleAdd}>
         Add Personnel
       </Button>
 
@@ -140,7 +234,7 @@ const columns = [
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Add Personnel</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -207,11 +301,12 @@ const columns = [
 
               <Form.Group as={Col} md="3">
                 <Form.Label>Team #</Form.Label>
-                <Form.Select 
+                <Form.Select
                   id="team_id"
                   onChange={(e) => handleFormData(e)}
                   value={formData.team_id}
-                  aria-label="Default select example">
+                  aria-label="Default select example"
+                >
                   <option>Select</option>
                   <option value="1">Unassigned</option>
                   <option value="2">Team 1</option>
@@ -281,11 +376,11 @@ const columns = [
           </Button>
         </Modal.Footer>
       </Modal>
-      
-      <BootstrapTable 
-      keyField='last_name' 
-      data={ products } 
-      columns={ columns }
+
+      <BootstrapTable
+        keyField="last_name"
+        data={personnelData}
+        columns={columns}
       />
     </>
   );
