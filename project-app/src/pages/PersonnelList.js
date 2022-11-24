@@ -11,6 +11,8 @@ import { Pen, Trash3 } from "react-bootstrap-icons";
 
 const PersonnelList = () => {
   const [show, setShow] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const [deleteValue, setDeleteValue] = useState('')
   const [validated, setValidated] = useState(false);
   const [formData, setFormData] = useState({});
   const [personnelData, setPersonnelData] = useState([]);
@@ -98,6 +100,7 @@ const PersonnelList = () => {
     },
     {
       dataField: "id",
+      text: '',
       formatter: (cell, row, rowIndex) => {
         return (
           <div className="form-buttons">
@@ -109,7 +112,7 @@ const PersonnelList = () => {
             </Button>
             <Button 
               variant="danger" 
-              onClick={() => handleDelete(cell)}>
+              onClick={() => handleShowWarning(cell)}>
               <Trash3 />
             </Button>
           </div>
@@ -148,7 +151,7 @@ const PersonnelList = () => {
     setFormData({});
   };
 
-  //POST "Add personnel" data to the database
+  //ADD new personnel / EDIT existing personnel
   const handleSubmit = async (event) => {
     try {
       event.preventDefault();
@@ -203,15 +206,16 @@ const PersonnelList = () => {
   }
 
   //DELETE person from database
-  const handleDelete = async (fieldId) => {
+  const handleDelete = async () => {
     try {
-      let response = await fetch(`http://localhost:8081/personnel/${fieldId}`, {
+      let response = await fetch(`http://localhost:8081/personnel/${deleteValue}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
       });
       toggleRefresh();
+      handleCloseWarning();
       if (response.status !== 202) {
         throw new Error();
       }
@@ -219,6 +223,17 @@ const PersonnelList = () => {
       console.log(error);
     }
   };
+
+  //DELETE Confirmation Warnings
+  const handleCloseWarning = () => {
+    setShowWarning(false);
+    setDeleteValue('');
+  }
+
+  const handleShowWarning = (rowId) => {
+    setShowWarning(true);
+    setDeleteValue(rowId);
+  }
 
   return (
     <>
@@ -382,6 +397,25 @@ const PersonnelList = () => {
         data={personnelData}
         columns={columns}
       />
+      <Modal
+        show={showWarning}
+        onHide={handleCloseWarning}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header >
+          <Modal.Title>CONFIRM</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you wish to delete this entry?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseWarning}>
+            Close
+          </Button>
+          <Button variant="warning" onClick={handleDelete}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
