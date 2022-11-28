@@ -1,42 +1,67 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
 import Card from 'react-bootstrap/Card';
+import Button from 'react-bootstrap/Button';
+
 
 const Missions = () => {
+  const [missionData, setMissionData] = useState([]);
+  const [refresh, setRefresh] = useState(false);
+  
+  //FETCH MISSION DATA
+  useEffect(() => {
+    fetch("http://localhost:8081/missions")
+      .then((res) => res.json())
+      .then((data) => {
+        let dataSlice = data.map((item) => {
+          if (item.start_date) {
+            item.start_date = item.start_date.slice(0, 10);
+            item.end_date = item.end_date.slice(0, 10);
+          }
+          return item;
+        });
+        setMissionData(dataSlice);
+      })
+      .catch((error) => {
+        console.error(error);
+        return [];
+      });
+  }, [refresh]);
+
+  //Buid Card Layout
+  const renderMissionCard = (card, index) => {
+    return (
+      <Card style={{ width: '18rem' }} key={index} className="mission-card">
+      <Card.Body>
+        <Card.Title>{card.start_date}</Card.Title>
+        <Card.Subtitle className="mb-2 text-muted">Team Info?</Card.Subtitle>
+        <Card.Text>
+          {card.description}
+        </Card.Text>
+        <Button variant="primary">Mission Info</Button>
+        <Button variant="danger">Delete Mission</Button>
+      </Card.Body>
+    </Card>
+    )
+  }
+
+  
+  
+  //DATA HANDLERS
+
+  //Call this to refresh the mission list
+  const toggleRefresh = () => {
+    setRefresh((current) => !current);
+  };
+
+  
+  
   return (
-    <><h1>Upcoming Missions</h1>
-    <Card style={{ width: '18rem' }}>
-      <Card.Body>
-        <Card.Title>2022-09-01</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">Team 2</Card.Subtitle>
-        <Card.Text>
-          QRO meets with host nation security in preparation for World Cup security operations.
-        </Card.Text>
-        <Card.Link href="#">View Details</Card.Link>
-        <Card.Link href="#">Delete Mission</Card.Link>
-      </Card.Body>
-    </Card>
-    <Card style={{ width: '18rem' }}>
-      <Card.Body>
-        <Card.Title>2022-09-15</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">Team 1</Card.Subtitle>
-        <Card.Text>
-          KRO meets with RCC-SWA in response to cyber incident.
-        </Card.Text>
-        <Card.Link href="#">View Details</Card.Link>
-        <Card.Link href="#">Delete Mission</Card.Link>
-      </Card.Body>
-    </Card>
-    <Card style={{ width: '18rem' }}>
-      <Card.Body>
-        <Card.Title>2022-10-01</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">Team 3</Card.Subtitle>
-        <Card.Text>
-          SRO conducts CI investigations briefing with unit command.
-        </Card.Text>
-        <Card.Link href="#">View Details</Card.Link>
-        <Card.Link href="#">Delete Mission</Card.Link>
-      </Card.Body>
-    </Card>
+    <>
+    <h1>Upcoming Missions</h1>
+    <div className="mission-card-container">  
+      {missionData.map(renderMissionCard)}
+    </div>
+    
     </>
   )
 }

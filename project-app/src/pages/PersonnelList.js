@@ -103,7 +103,7 @@ const PersonnelList = () => {
       text: '',
       formatter: (cell, row, rowIndex) => {
         return (
-          <div className="form-buttons">
+          <div className="table-buttons">
             <Button
               variant="secondary"
               onClick={() => handleEditShow(cell)}
@@ -250,7 +250,7 @@ const PersonnelList = () => {
         keyboard={false}
       >
         <Modal.Header>
-          <Modal.Title>Add Personnel</Modal.Title>
+          <Modal.Title>Add/Edit Personnel</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form noValidate validated={validated}>
