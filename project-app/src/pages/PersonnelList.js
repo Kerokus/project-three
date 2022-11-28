@@ -131,12 +131,6 @@ const PersonnelList = () => {
   //Open "Personnel" form
   const handleShow = () => setShow(true);
 
-  //set Add State
-  const handleAdd = () => {
-    setIsAdd(true)
-    handleShow();
-  }
-
   //Set state for the "Add personnel" form
   const handleFormData = (event) => {
     let newData = { ...formData };
@@ -151,32 +145,11 @@ const PersonnelList = () => {
     setFormData({});
   };
 
-  //ADD new personnel / EDIT existing personnel
-  const handleSubmit = async (event) => {
-    try {
-      event.preventDefault();
-      const form = event.currentTarget;
-      if (form.checkValidity() === false) {
-        event.stopPropagation();
-      }
-      setValidated(true);
-      let response = await fetch(isAdd ? "http://localhost:8081/personnel" : `http://localhost:8081/personnel/${formData.id}`, {
-        method: isAdd ? "POST" : "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      setFormData({});
-      handleClose();
-      toggleRefresh();
-      if (response.status !== 201) {
-        throw new Error();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //set Add State
+  const handleAdd = () => {
+    setIsAdd(true)
+    handleShow();
+  }
 
   //EDIT existing person within database
   const handleEditShow = async (fieldId) => {
@@ -204,6 +177,33 @@ const PersonnelList = () => {
       
     }
   }
+  
+  //ADD new personnel / EDIT existing personnel
+  const handleSubmit = async (event) => {
+    try {
+      event.preventDefault();
+      const form = event.currentTarget;
+      if (form.checkValidity() === false) {
+        event.stopPropagation();
+      }
+      setValidated(true);
+      let response = await fetch(isAdd ? "http://localhost:8081/personnel" : `http://localhost:8081/personnel/${formData.id}`, {
+        method: isAdd ? "POST" : "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      setFormData({});
+      handleClose();
+      toggleRefresh();
+      if (response.status !== 201) {
+        throw new Error();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   //DELETE person from database
   const handleDelete = async () => {
