@@ -9,6 +9,7 @@ import BootstrapTable from "react-bootstrap-table-next";
 import { json } from "react-router";
 import { Pen, Trash3 } from "react-bootstrap-icons";
 
+
 const PersonnelList = () => {
   const [show, setShow] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
@@ -18,6 +19,12 @@ const PersonnelList = () => {
   const [personnelData, setPersonnelData] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
+
+  // Search Functionality States:
+  const [searchByTerm, setSearchByTerm] = useState('last_name');
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filteredData, setFilteredData] = useState([]);
+
 
   //FETCH TABLE DATA
   useEffect(() => {
@@ -32,6 +39,7 @@ const PersonnelList = () => {
           return item;
         });
         setPersonnelData(dataSlice);
+        setFilteredData(dataSlice);
       })
       .catch((error) => {
         console.error(error);
@@ -235,6 +243,37 @@ const PersonnelList = () => {
     setDeleteValue(rowId);
   }
 
+   // Search Functions:
+
+   // Sets the "Search By" category on change of the options dropdown (default is last_name)
+  const handleSearchBy = (event) => {
+      setSearchByTerm(event.target.value)
+  }
+
+  // Sets the "Search Term" on change of the search text box (default is "")
+  const handleSearch = (event) => {
+      setSearchTerm(event.target.value)
+  } 
+
+  // Filters the data that's being displayed based on the Search By category and Search Term
+  useEffect(() => {
+    let searchArray = [];
+    personnelData.forEach((person) => {
+      if(typeof person[searchByTerm] === 'string') {
+        if (person[searchByTerm]){
+          if (person[searchByTerm].toLowerCase().includes(searchTerm.toLowerCase())) {
+            searchArray.push(person)
+          }
+        }
+      } else if (typeof person[searchByTerm] === 'number') {
+        if (person[searchByTerm].toString().includes(searchTerm)) {
+          searchArray.push(person)
+        }
+      } 
+      setFilteredData(searchArray)
+    })
+  }, [searchTerm, searchByTerm])
+
   return (
     <>
       <h1>Current Deployed Personnel</h1>
@@ -242,6 +281,27 @@ const PersonnelList = () => {
       <Button variant="primary" onClick={handleAdd}>
         Add Personnel
       </Button>
+
+      <div className="mainsearch">
+          <input 
+              className="text-search-bar" 
+              type='text' 
+              placeholder="Search Personnel" 
+              onChange={(event) => {handleSearch(event)}}
+          /> 
+                                
+        <select name="personnel-serach-options" id="personnel-serach-options" onChange ={(event) => handleSearchBy(event)}>
+          <option value="last_name" >Last Name</option>
+          <option value="first_name" >First Name</option>
+          <option value="rank" >Rank</option>
+          <option value="mos" >MOS</option>
+          <option value="team_id" >Team #</option>
+          <option value="dep_start" >Deployment Start</option>
+          <option value="dep_end">Deployment End</option>
+          
+        </select>
+                
+      </div>
 
       <Modal
         show={show}
@@ -394,7 +454,7 @@ const PersonnelList = () => {
 
       <BootstrapTable
         keyField="last_name"
-        data={personnelData}
+        data={filteredData}
         columns={columns}
       />
       <Modal
