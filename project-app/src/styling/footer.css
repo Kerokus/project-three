@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Quantico&display=swap');
+
+.footer{
+  display:flex;
+  justify-content: end;
+  font-family: 'Quantico', sans-serif;
+  position:fixed;
+  padding: 5em, 5em, 5em, 5em;
+  background-color: #242424;
+  height: 4em;
+  bottom: 0;
+  width: 100%;
+}
+
+.copyright {
+  display: flex;
+  align-self: flex-end;
+  padding-right: 1em;
+  color:white;
+  margin-bottom: 0em;
+}

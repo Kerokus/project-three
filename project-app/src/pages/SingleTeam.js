@@ -1,130 +1,83 @@
 import Card from 'react-bootstrap/Card';
-import React, { useState, useEffect } from "react";
+import TeamContext from "./TeamsContext";
+import React, { useState, useEffect, useContext } from "react";
 
 const SingleTeam = () => {
   var htmlRender = [];
+  const { clickedTeam, setClickedTeam } = useContext(TeamContext)
+  const [personnelData, setPersonnelData] = useState([]);
+  const [missionData, setMissionData] = useState([]);
+  const [teamData, setTeamData] = useState([]);
+  const [refresh, setRefresh] = useState(false);
+  
 
-  // Gen test data 'til the API is setup.
-  const objOneTeam = {
-    team_lead: 'SFC BeardOf Zeus',
-    name: 'JTF Kuwait',
-    current_size: '4',
-    location: 'Camp Arifjan',
-    description: 'MIB HUMINT/SIGINT Support to JTF Kuwait',
-    start_date: '2022-11-01',
-    end_date: '2023-04-30',
-    names: [
-      { id: 1,
-        first_name: 'Snuffa',
-        last_name: 'Lupagus',
-        rank: 'PFC',
-        mos: '35M',
-        dep_start: '2023-02-01',
-        dep_end: '2023-04-30',
-        contact: 'WHATISTHIS???'
-      },
-      { id: 2,
-        first_name: 'Oscar',
-        last_name: 'DaGrouch',
-        rank: 'SFC',
-        mos: '35M',
-        dep_start: '2022-11-01',
-        dep_end: '2023-01-31',
-        contact: 'WHATISTHIS???'
-      },
-      { id: 3,
-        first_name: 'BeardOf',
-        last_name: 'Zeus',
-        rank: 'SFC',
-        mos: '35M',
-        dep_start: '2022-11-01',
-        dep_end: '2023-04-30',
-        contact: 'WHATISTHIS???'
-      },
-      { id: 4,
-        first_name: 'Mister',
-        last_name: 'Hooper',
-        rank: 'SGT',
-        mos: '35M',
-        dep_start: '2023-02-01',
-        dep_end: '2023-04-30',
-        contact: 'WHATISTHIS???'
-      },
-      { id: 5,
-        first_name: 'Burt',
-        last_name: 'JustBurt',
-        rank: 'SSG',
-        mos: '35M',
-        dep_start: '2023-02-01',
-        dep_end: '2023-04-30',
-        contact: 'WHATISTHIS???'
+    //FETCH MISSION DATA
+    useEffect(() => {
+      fetch("http://localhost:8082/missions")
+        .then((res) => res.json())
+        .then((data) => {
+          let dataSlice = data.map((item) => {
+            if (item.start_date) {
+              item.start_date = item.start_date.slice(0, 10);
+              item.end_date = item.end_date.slice(0, 10);
+            }
+            return item;
+          });
+          setMissionData(dataSlice);
+          return fetch("http://localhost:8082/teams")
+        })
+        .then((response => response.json()))
+        .then(teamDatum => setTeamData(teamDatum))
+        .catch((error) => {
+          console.error(error);
+          return [];
+        });
+    }, [refresh]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let res = await fetch("http://localhost:8082/personnel");
+        let peeps = await res.json();
+        setPersonnelData(peeps);
+      } catch (e) {
+        console.log(e);
       }
-    ]
-  }
+    }
 
+    fetchData();
+  }, [])
+
+  if(!clickedTeam || !personnelData) {return <></>} 
   return (
-    <><br />
-    <div className="row row-cols-2 justify-content-center">
-    <Card className="text-white bg-dark">
-      <Card.Body>
-        <Card.Title>{objOneTeam.name}</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">{objOneTeam.location}</Card.Subtitle>
-        <Card.Text>
-          Deployment Dates: {objOneTeam.start_date} - {objOneTeam.end_date}<br />
-          Team Size: {objOneTeam.current_size}<br />
-        </Card.Text>
-        <Card.Text>
-        Mission Desc: {objOneTeam.description}<br />
-        </Card.Text>
-       
-
-        <Card.Footer>
-          Team Members:<br />
-          <hr />
-          {objOneTeam.names.map(row => {
-            return <div>{row.rank} {row.first_name} {row.last_name}</div>
-          })}
-        </Card.Footer>
-
-
-        <Card.Link href="#">View Details</Card.Link>
-        <Card.Link href="#">Delete Mission</Card.Link>
-      </Card.Body>
-    </Card>
-    </div>
-    <br />
-    </>
-
-//return (htmlRender);
-  )
+     <><br />
+     <div className="row row-cols-2 justify-content-center">
+     <Card className="text-white bg-dark">
+       <Card.Body>
+         <Card.Title>{clickedTeam.name} Team </Card.Title>
+         <div className="mb-2 text-muted">
+            Current Location: <br />
+            {clickedTeam.mission_location}
+          </div>
+         <Card.Text className="mb-2 text-muted">Team Size: {clickedTeam.current_size} <br /> </Card.Text>
+         <Card.Footer>
+           Members:<br />
+           <hr />
+           {personnelData.map(row => {
+             return row.team_id === clickedTeam.id 
+                ? <div key={row.id}>{row.rank} {row.first_name} {row.last_name}</div>
+                : null
+           })}
+         </Card.Footer>
+       </Card.Body>
+     </Card>
+     </div>
+     <br />
+     </>
+   )
 }
 
 export default SingleTeam
 
 
 
-/*
-teams:
------
-team_lead
-name
-current_size
-
-mission/acty:
-------------
-location
-description
-start_date
-end_date
-
-personnel:
----------
-first_name
-last_name
-rank
-mos
-dep_start
-dep_end
-contact
-team_id
-*/

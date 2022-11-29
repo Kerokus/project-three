@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import '../styling/personnel.css'
+import React, { useState, useEffect, useContext } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Col from "react-bootstrap/Col";
@@ -6,10 +7,13 @@ import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 import BootstrapTable from "react-bootstrap-table-next";
-import { json } from "react-router";
 import { Pen, Trash3 } from "react-bootstrap-icons";
+import {Link} from 'react-router-dom'
+import TeamContext from "./TeamsContext";
+
 
 const PersonnelList = () => {
+  //Justin's Original Functionality States:
   const [show, setShow] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [deleteValue, setDeleteValue] = useState('')
@@ -19,25 +23,61 @@ const PersonnelList = () => {
   const [refresh, setRefresh] = useState(false);
   const [isAdd, setIsAdd] = useState(false);
 
-  //FETCH TABLE DATA
+  const { clickedTeam, setClickedTeam } = useContext(TeamContext)
+  // Search Functionality States:
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
+  const [teamData, setTeamData] = useState([]);
+
+  // async FETCH TEAM TABLE DATA (needed to render team names)
   useEffect(() => {
-    fetch("http://localhost:8081/personnel")
-      .then((res) => res.json())
-      .then((data) => {
-        let dataSlice = data.map((item) => {
+    const fetchData = async () => {
+      try{
+        const response = await fetch("http://localhost:8081/teams")
+        const data = await response.json()
+        setTeamData(data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fetchData()
+  }, [refresh])
+
+// async FETCH PERSONNEL TABLE DATA 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8081/personnel")
+        const data = await response.json()
+        let dataSlice = data.map(item => {
           if (item.dep_start) {
             item.dep_start = item.dep_start.slice(0, 10);
+          } if (item.dep_end) {
             item.dep_end = item.dep_end.slice(0, 10);
           }
           return item;
-        });
+        })
         setPersonnelData(dataSlice);
+        setFilteredData(dataSlice);
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    fetchData()
+  }, [refresh])
+
+//Creates new "team_name" column in personnel table being rendered
+  useEffect(() => {
+    let withTeamNames = personnelData.map(person => {
+      teamData.forEach(team => {
+        if (person.team_id === team.id) {
+          person.team_name = team.name
+        }
       })
-      .catch((error) => {
-        console.error(error);
-        return [];
-      });
-  }, [refresh]);
+      return person;
+    })
+    setFilteredData(withTeamNames)
+  }, [personnelData])
 
   //TABLE HEADERS
   const columns = [
@@ -45,17 +85,26 @@ const PersonnelList = () => {
       dataField: "last_name",
       text: "Last Name",
       sort: true,
+      headerStyle: (column, colIndex) => {
+        return { backgroundColor: '#5A5A5A', color:'white' };
+      },
+      rowStyle: (row, rowIndex) => {
+      return {color: 'white'}
+      }
     },
     {
       dataField: "first_name",
       text: "First Name",
+      headerStyle: (column, colIndex) => {
+        return { backgroundColor: '#5A5A5A', color:'white' };
+      },
     },
     {
       dataField: "rank",
       text: "Rank",
       sort: true,
       headerStyle: (column, colIndex) => {
-        return { width: "5%" };
+        return { width: "5%", backgroundColor: '#5A5A5A', color:'white' };
       },
     },
     {
@@ -63,23 +112,34 @@ const PersonnelList = () => {
       text: "MOS",
       sort: true,
       headerStyle: (column, colIndex) => {
-        return { width: "70px" };
+        return { width: "70px", backgroundColor: '#5A5A5A', color:'white' };
       },
     },
     {
-      dataField: "team_id",
-      text: "Team #",
+      dataField: "team_name",
+      text: "Team",
+      formatter: (cell, row, rowIndex, extraData) => (
+        <div className='link-to' key={rowIndex} >
+          <Link to={`/teams/${row['team_id']}`} onClick={() => 
+          teamData.forEach(team => {
+            if (row['team_id'] === team.id) {
+              setClickedTeam(team)
+            }
+          })}> 
+            {row.team_name}  </Link>
+        </div>
+          ),
       sort: true,
       headerStyle: (column, colIndex) => {
-        return { width: "100px" };
-      },
+        return { width: "100px", backgroundColor: '#5A5A5A', color:'white' };
+      }
     },
     {
       dataField: "contact",
       text: "Email address",
       sort: true,
       headerStyle: (column, colIndex) => {
-        return { width: "300px" };
+        return { width: "300px", backgroundColor: '#5A5A5A', color:'white' };
       },
     },
     {
@@ -87,7 +147,7 @@ const PersonnelList = () => {
       text: "Deployment Start",
       sort: true,
       headerStyle: (column, colIndex) => {
-        return { width: "120px" };
+        return { width: "120px", backgroundColor: '#5A5A5A', color:'white' };
       },
     },
     {
@@ -95,7 +155,7 @@ const PersonnelList = () => {
       text: "Deployment End",
       sort: true,
       headerStyle: (column, colIndex) => {
-        return { width: "120px" };
+        return { width: "120px", backgroundColor: '#5A5A5A', color:'white' };
       },
     },
     {
@@ -117,6 +177,9 @@ const PersonnelList = () => {
             </Button>
           </div>
         );
+      },
+      headerStyle: (column, colIndex) => {
+        return { width: "120px", backgroundColor: '#5A5A5A', color:'white' };
       },
     },
   ];
@@ -148,7 +211,37 @@ const PersonnelList = () => {
   //set Add State
   const handleAdd = () => {
     setIsAdd(true)
+    setValidated(false);
     handleShow();
+  }
+
+  const formValidate = () => {
+    console.log(formData)
+    if (Object.keys(formData).length === 0) {
+      return false
+    }
+    if (!formData.first_name || formData.first_name === '') {
+      return false
+    }
+    if (!formData.last_name || formData.last_name === '') {
+      return false
+    }
+    if (!formData.rank || formData.rank.length !== 3) {
+      return false
+    }
+    if (!formData.mos || formData.mos.length < 3 || formData.mos.length > 4) {
+      return false
+    }
+    if (!formData.dep_start) {
+      return false
+    }
+    if (!formData.dep_end) {
+      return false
+    }
+    if (!formData.contact) {
+      return false
+    }
+    return true
   }
 
   //EDIT existing person within database
@@ -166,6 +259,7 @@ const PersonnelList = () => {
         let dataSlice = data.map((item) => {
           if (item.dep_start) {
             item.dep_start = item.dep_start.slice(0, 10);
+          } if (item.dep_end) {
             item.dep_end = item.dep_end.slice(0, 10);
           }
           return item;
@@ -181,25 +275,30 @@ const PersonnelList = () => {
   //ADD new personnel / EDIT existing personnel
   const handleSubmit = async (event) => {
     try {
-      event.preventDefault();
       const form = event.currentTarget;
-      if (form.checkValidity() === false) {
+      if (form.checkValidity() === false || formValidate() === false) {
+        event.preventDefault();
         event.stopPropagation();
+        setValidated(true);
+      } else {
+        setValidated(true);
+        event.preventDefault();
+        let response = await fetch(isAdd ? "http://localhost:8081/personnel" : `http://localhost:8081/personnel/${formData.id}`, {
+          method: isAdd ? "POST" : "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+        setFormData({});
+        handleClose();
+        toggleRefresh();
+        if (response.status !== 201) {
+          throw new Error();
+        }
       }
-      setValidated(true);
-      let response = await fetch(isAdd ? "http://localhost:8081/personnel" : `http://localhost:8081/personnel/${formData.id}`, {
-        method: isAdd ? "POST" : "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      setFormData({});
-      handleClose();
-      toggleRefresh();
-      if (response.status !== 201) {
-        throw new Error();
-      }
+
+      
     } catch (error) {
       console.log(error);
     }
@@ -235,13 +334,44 @@ const PersonnelList = () => {
     setDeleteValue(rowId);
   }
 
+//// Search Functions////
+
+  // Sets the "Search Term" on change of the search text box (default is "")
+  const handleSearch = (event) => {
+      setSearchTerm(event.target.value)
+  } 
+
+  //Filters the data without having to select a "Search By" Category
+  useEffect(() => {
+    let searchArray = [];
+      personnelData.forEach((person) => {
+        let personnelDataString = JSON.stringify(person)
+        if (personnelDataString.toLowerCase().includes(searchTerm.toLowerCase())) {
+          searchArray.push(person)
+        }
+        setFilteredData(searchArray)
+      })
+  }, [searchTerm])
+
+
   return (
     <>
-      <h1>Current Deployed Personnel</h1>
+      <h1 className='header-text'>Current Deployed Personnel</h1>
 
-      <Button variant="primary" onClick={handleAdd}>
+      <Button className='add-mission' variant="primary" onClick={handleAdd}>
         Add Personnel
       </Button>
+
+      <div className="mainsearch">
+          <input 
+              className="text-search-bar" 
+              type='text' 
+              placeholder="Search Personnel" 
+              onChange={(event) => {handleSearch(event)}}
+          /> 
+                              
+                
+      </div>
 
       <Modal
         show={show}
@@ -253,7 +383,8 @@ const PersonnelList = () => {
           <Modal.Title>Add/Edit Personnel</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form noValidate validated={validated}>
+          
+        <Form noValidate validated={validated} onSubmit={handleSubmit}>
             <Row className="mb-3">
               <Form.Group as={Col} md="4">
                 <Form.Label>Last Name</Form.Label>
@@ -288,6 +419,8 @@ const PersonnelList = () => {
                     value={formData.rank}
                     className="formRank"
                     type="text"
+                    minLength={"3"}
+                    maxLength={"3"}
                     placeholder="RNK"
                     required
                   />
@@ -306,6 +439,8 @@ const PersonnelList = () => {
                   value={formData.mos}
                   className="formMOS"
                   type="text"
+                  minLength={"3"}
+                  maxLength={"4"}
                   placeholder="MOS"
                   required
                 />
@@ -323,12 +458,11 @@ const PersonnelList = () => {
                   aria-label="Default select example"
                 >
                   <option>Select</option>
-                  <option value="1">Unassigned</option>
-                  <option value="2">Team 1</option>
-                  <option value="3">Team 2</option>
-                  <option value="4">Team 3</option>
-                  <option value="5">Team 4</option>
-                  <option value="6">Team 5</option>
+                  {teamData.map(team => {
+                    return (
+                      <option value={team.id} key={team.id}>{team.name}</option>
+                    )
+                  })}
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">
                   Please provide a team #
@@ -380,22 +514,22 @@ const PersonnelList = () => {
                 </Form.Control.Feedback>
               </Form.Group>
             </Row>
+            <Button variant="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button variant="primary" type='submit'>
+              Submit
+            </Button>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Submit
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       <BootstrapTable
         keyField="last_name"
-        data={personnelData}
+        data={filteredData}
         columns={columns}
+        rowStyle={{backgroundColor: '#d3d3d3'}}
+        striped
       />
       <Modal
         show={showWarning}

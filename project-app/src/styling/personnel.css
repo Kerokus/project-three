@@ -5,3 +5,9 @@
 .formMOS {
     text-transform: uppercase;
 }
+
+.mainsearch{
+    margin: 1em;
+    margin-top: -1em;
+    margin-left: 2.3em;
+}

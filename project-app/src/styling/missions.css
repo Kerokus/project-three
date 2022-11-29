@@ -1,0 +1,38 @@
+.add-mission{
+  margin:1em;
+  margin-left:2.3em;
+}
+
+.buttons{
+  display:flex;
+  justify-content: space-between;
+
+}
+
+.card-text {
+  display:flex;
+  flex: 2 1 auto;
+}
+.card-body{
+  display:flex;
+  flex-direction:column;
+  align-content: stretch;
+  margin: 0 auto;
+  flex: 3 1 auto;
+  padding: 1em;
+}
+
+.header-text {
+  color:white;
+  margin: 0.5em;
+  text-align: center;
+}
+.mission-card-container{
+  display:flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.mission-card{
+  margin: 0.5em;
+}

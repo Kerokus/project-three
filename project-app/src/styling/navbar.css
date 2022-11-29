@@ -1,3 +1,25 @@
-.navbar{
-    background-color: rgb(32, 37, 41);
+@import url('https://fonts.googleapis.com/css2?family=Quantico&display=swap');
+
+.missions{
+    color:white;
+}
+
+.navbar.container{
+    font-family: 'Quantico', sans-serif;
+    width: 100%;
+    height: 100%;
+    display:flex;
+    justify-content: space-between;
+    flex: 12;
+}
+.personnel{
+    color:white;
+}
+.teams{
+    color:white;
+}
+.webpage-title {
+    display:flex;
+    color:white;
+    opacity: 100%;
 }
