@@ -1,3 +1,4 @@
+import '../styling/singleteam.css'
 import Card from 'react-bootstrap/Card';
 import TeamContext from "./TeamsContext";
 import React, { useState, useEffect, useContext } from "react";
@@ -13,7 +14,7 @@ const SingleTeam = () => {
 
     //FETCH MISSION DATA
     useEffect(() => {
-      fetch("http://localhost:8082/missions")
+      fetch("http://localhost:8081/missions")
         .then((res) => res.json())
         .then((data) => {
           let dataSlice = data.map((item) => {
@@ -24,7 +25,7 @@ const SingleTeam = () => {
             return item;
           });
           setMissionData(dataSlice);
-          return fetch("http://localhost:8082/teams")
+          return fetch("http://localhost:8081/teams")
         })
         .then((response => response.json()))
         .then(teamDatum => setTeamData(teamDatum))
@@ -37,14 +38,13 @@ const SingleTeam = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        let res = await fetch("http://localhost:8082/personnel");
+        let res = await fetch("http://localhost:8081/personnel");
         let peeps = await res.json();
         setPersonnelData(peeps);
       } catch (e) {
         console.log(e);
       }
     }
-
     fetchData();
   }, [])
 
@@ -52,12 +52,18 @@ const SingleTeam = () => {
   return (
      <><br />
      <div className="row row-cols-2 justify-content-center">
-     <Card className="text-white bg-dark">
-       <Card.Body>
+     <Card bg='dark' border='light' text='white' className="team-card">
+       <Card.Body className='team-card-body'>
          <Card.Title>{clickedTeam.name} Team </Card.Title>
          <div className="mb-2 text-muted">
-            Current Location: <br />
-            {clickedTeam.mission_location}
+         {missionData.forEach(mission => {
+            let missionId = mission.id
+            let teamMissionId = (clickedTeam['mission_id'])
+            if (missionId === teamMissionId) {
+              clickedTeam.mission_location = mission.location
+            }
+          })}
+          Current Location: {clickedTeam.mission_location}
           </div>
          <Card.Text className="mb-2 text-muted">Team Size: {clickedTeam.current_size} <br /> </Card.Text>
          <Card.Footer>

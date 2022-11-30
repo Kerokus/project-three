@@ -2,11 +2,12 @@
 
 .footer{
   display:flex;
-  justify-content: end;
+  justify-content: space-between;
   font-family: 'Quantico', sans-serif;
   position:fixed;
   padding: 5em, 5em, 5em, 5em;
   background-color: #242424;
+  color: white;
   height: 4em;
   bottom: 0;
   width: 100%;
@@ -18,4 +19,13 @@
   padding-right: 1em;
   color:white;
   margin-bottom: 0em;
+}
+
+.developers{
+  display:flex;
+  align-self: flex-end;
+  padding-left: 1em;
+  color:white;
+  margin-bottom: 0em;
+  font-size: small;
 }

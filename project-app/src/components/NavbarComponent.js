@@ -11,7 +11,7 @@ const NavbarComponent = () => {
       <Navbar className='nav'bg="dark" variant="dark">
         <Container className='navbar'>
           <Navbar.Brand className='webpage-title' as={Link} to="/">
-            Mission and Personnel Tracker
+            Deployed Personnel Accountability System
           </Navbar.Brand>
           <Nav className="me-right">
             <Nav.Link className='missions'as={Link} to="/missions">

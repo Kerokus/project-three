@@ -21,6 +21,10 @@ const Teams = () => {
   const [show, setShow] = useState(false);
   const [formData, setFormData] = useState({});
   const [validated, setValidated] = useState(false);
+
+  // Search Functionality States:
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
   
   //FETCH MISSION DATA
   useEffect(() => {
@@ -35,15 +39,34 @@ const Teams = () => {
           return item;
         });
         setMissionData(dataSlice);
+        setFilteredData(dataSlice);
         return fetch("http://localhost:8081/teams")
       })
       .then((response => response.json()))
-      .then(teamDatum => setTeamData(teamDatum))
+      .then(teamDatum => {
+        setTeamData(teamDatum)
+        setFilteredData(teamDatum);
+      })
       .catch((error) => {
         console.error(error);
         return [];
       });
   }, [refresh]);
+
+//   Creates new "team_name" column in personnel table being rendered
+// useEffect(() => {
+//   let withTeamNames = missionData.map(mission => {
+//     teamData.forEach(team => {
+//       if (mission.id === team.mission_id) {
+//         mission.team_name = team.name
+//       } if (mission.id === 3) {
+//         mission.team_name = 'Multiple Teams'
+//       }
+//     })
+//     return mission;
+//   })
+//   setFilteredData(withTeamNames)
+// }, [missionData, teamData])
   
   // //Matching missions to teams
   // const getTeamInfo = (mission) => {
@@ -80,7 +103,10 @@ const Teams = () => {
           Team Info
         </Button>
         </Link>
-        <Button variant="danger" onClick={handleDeleteShow}>Delete Team</Button>
+        <Button variant="danger" onClick={() => {
+          setClickedTeam(team)
+          handleDeleteShow()
+        }}>Delete Team</Button>
         </div>
       </Card.Body>
     </Card>
@@ -102,6 +128,7 @@ const Teams = () => {
   //Set state for the "Add personnel" form
   const handleFormData = (event) => {
     let newData = { ...formData };
+    newData.current_size = 0;
     newData[event.target.id] = event.target.value;
     setFormData(newData);
   };
@@ -118,7 +145,7 @@ const Teams = () => {
     handleShow();
   }
 
-  //ADD mission
+  //ADD Team
   const handleSubmit = async (event) => {
     try {
       event.preventDefault();
@@ -127,7 +154,7 @@ const Teams = () => {
         event.stopPropagation();
       }
       setValidated(true);
-      let response = await fetch("http://localhost:8081/missions", {
+      let response = await fetch("http://localhost:8081/teams", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -145,14 +172,14 @@ const Teams = () => {
     }
   };
 
-  //Delete a mission
+  //Delete a team
   const handleDeleteClose = () => setShowDelete(false)
   const handleDeleteShow = () => setShowDelete(true)
 
-  const deleteMission = async() => {
+  const deleteTeam = async() => {
     try {
-      let missionDelete = await fetch(`http://localhost:8081/missions/${clickedTeam.id}`,  { method: "DELETE" })
-      if(missionDelete.status !== 202){
+      let teamDelete = await fetch(`http://localhost:8081/teams/${clickedTeam.id}`,  { method: "DELETE" })
+      if(teamDelete.status !== 202){
       throw new Error()
       }
       handleDeleteClose();
@@ -165,27 +192,66 @@ const Teams = () => {
 
   const sortTeams = (teamsArray) => {
     return teamsArray.sort((a, b) => {
-      const nameA = a.name.toUpperCase();
-      const nameB = b.name.toUpperCase();
-      if (nameA < nameB) {return -1};
-      if (nameA > nameB) {return 1};
-      return 0;
+      if (a.name) {
+        const nameA = a.name.toUpperCase();
+        const nameB = b.name.toUpperCase();
+        if (nameA < nameB) {return -1};
+        if (nameA > nameB) {return 1};
+        return 0;
+      } 
     })
   }
+
+    //// Search Functions////
+
+  // Sets the "Search Term" on change of the search text box (default is "")
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value)
+} 
+
+//Filters the data without having to select a "Search By" Category
+useEffect(() => {
+  let searchArray = [];
+    teamData.forEach((team) => {
+      let teamDataString = JSON.stringify(team)
+      if (teamDataString.toLowerCase().includes(searchTerm.toLowerCase())) {
+        searchArray.push(team)
+      }
+      setFilteredData(searchArray)
+    })
+}, [searchTerm])
   
   return (
     <>
-      <h1>Teams</h1>
-      <Button variant='success' className='add-mission' onClick={handleAdd}>
-        Add Mission
-      </Button>
+      <h1 className='teams-header'>Teams</h1>
+      <div className='nav-buttons'>
+        <Button variant='success' className='add-mission' onClick={handleAdd}>
+          Add Team
+        </Button>
+        <Link className='homepage-button-personnel' to='/'>
+        <Button variant='primary' className='homepage-button'>
+          Back to Home
+        </Button>
+        </Link>
+      </div>
+
+      <div className="mainsearch">
+          <input 
+              className="text-search-bar" 
+              type='text' 
+              placeholder="Search Teams" 
+              onChange={(event) => {handleSearch(event)}}
+              value={searchTerm}
+          />     
+      </div>
+
       <div className="mission-card-container">
-        {sortTeams([...teamData]).map(renderTeamCard)}
+        {sortTeams([...filteredData]).map(renderTeamCard)}
       </div>
 
       <Modal show={showDelete} onHide={handleDeleteClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete Mission</Modal.Title>
+          <Modal.Title>Delete Team</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           Please confirm that you wish to delete this team. This action
@@ -195,12 +261,15 @@ const Teams = () => {
           <Button variant="secondary" onClick={handleDeleteClose}>
             Close
           </Button>
-          <Button variant="warning" onClick={deleteMission}>
+          <Button variant="warning" onClick={() => {
+          deleteTeam()
+          setSearchTerm('')
+        }}>
             <Link
-              to="/missions"
+              to="/teams"
               style={{ color: "white", textDecoration: "none" }}
             >
-              Delete Mission
+              Delete Team
             </Link>
           </Button>
         </Modal.Footer>
@@ -213,72 +282,39 @@ const Teams = () => {
         keyboard={false}
       >
         <Modal.Header>
-          <Modal.Title>Add Mission</Modal.Title>
+          <Modal.Title>Add Team</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form noValidate validated={validated}>
             <Row className="mb-3">
-              <Form.Group as={Col} md="5">
-                <Form.Label>Mission Start Date</Form.Label>
+              <Form.Group as={Col} md="4">
+                <Form.Label>Name</Form.Label>
                 <Form.Control
-                  id="start_date"
+                  id="name"
                   onChange={(e) => handleFormData(e)}
-                  value={formData.start_date}
-                  type="date"
-                  placeholder="YYYY-MM-DD"
+                  value={formData.name}
                   required
+                  type="text"
+                  placeholder="Team Name"
                 />
-                <Form.Control.Feedback type="invalid">
-                  Enter Mission Start Date.
-                </Form.Control.Feedback>
-              </Form.Group>
-
-              <Form.Group as={Col} md="5">
-                <Form.Label>Mission End Date</Form.Label>
-                <Form.Control
-                  id="end_date"
-                  onChange={(e) => handleFormData(e)}
-                  value={formData.end_date}
-                  type="date"
-                  placeholder="YYYY-MM-DD"
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  Enter Mission End Date.
-                </Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group as={Col} md="4">
-                <Form.Label>Country</Form.Label>
+                <Form.Label>Mission ID</Form.Label>
                 <Form.Control
-                  id="location"
+                  id="mission_id"
                   onChange={(e) => handleFormData(e)}
-                  value={formData.location}
+                  value={formData.mission_id}
                   required
                   type="text"
-                  placeholder="Location"
+                  placeholder="Mission ID"
                 />
               </Form.Group>
+
+
             </Row>
             <Row className="mb-3">
-              <Form.Group as={Col} md="9">
-                <Form.Label>Mission Details</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  id="description"
-                  onChange={(e) => handleFormData(e)}
-                  value={formData.description}
-                  type="text"
-                  placeholder="Mission details"
-                  maxLength={"500"}
-                  style={{ height: "100px" }}
-                  required
-                />
-                
-                <Form.Control.Feedback type="invalid">
-                  Enter mission details
-                </Form.Control.Feedback>
-              </Form.Group>
+
             </Row>
           </Form>
         </Modal.Body>

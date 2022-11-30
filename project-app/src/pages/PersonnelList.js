@@ -58,7 +58,7 @@ const PersonnelList = () => {
           return item;
         })
         setPersonnelData(dataSlice);
-        setFilteredData(dataSlice);
+        // setFilteredData(dataSlice);
       } catch (e) {
         console.log(e)
       }
@@ -216,7 +216,6 @@ const PersonnelList = () => {
   }
 
   const formValidate = () => {
-    console.log(formData)
     if (Object.keys(formData).length === 0) {
       return false
     }
@@ -291,6 +290,7 @@ const PersonnelList = () => {
           body: JSON.stringify(formData),
         });
         setFormData({});
+        console.log('FILTER: '+ filteredData)
         handleClose();
         toggleRefresh();
         if (response.status !== 201) {
@@ -347,7 +347,11 @@ const PersonnelList = () => {
       personnelData.forEach((person) => {
         let personnelDataString = JSON.stringify(person)
         if (personnelDataString.toLowerCase().includes(searchTerm.toLowerCase())) {
-          searchArray.push(person)
+          if(searchArray.filter(item => {
+            return item.id === person.id;
+          }).length === 0){
+            searchArray.push(person)
+          }
         }
         setFilteredData(searchArray)
       })
@@ -356,11 +360,17 @@ const PersonnelList = () => {
 
   return (
     <>
-      <h1 className='header-text'>Current Deployed Personnel</h1>
-
-      <Button className='add-mission' variant="primary" onClick={handleAdd}>
+      <h1 className='header-text'>Deployed Personnel</h1>
+      <div className='nav-buttons'>
+      <Button className='add-mission' variant="success" onClick={handleAdd}>
         Add Personnel
       </Button>
+      <Link className='homepage-button-personnel' to='/'>
+      <Button variant='primary' className='homepage-button'>
+        Back to Home
+      </Button>
+      </Link>
+      </div>
 
       <div className="mainsearch">
           <input 
@@ -368,9 +378,8 @@ const PersonnelList = () => {
               type='text' 
               placeholder="Search Personnel" 
               onChange={(event) => {handleSearch(event)}}
-          /> 
-                              
-                
+              value={searchTerm}
+          />    
       </div>
 
       <Modal
@@ -524,13 +533,15 @@ const PersonnelList = () => {
         </Modal.Body>
       </Modal>
 
+      <div className='table-div'>
       <BootstrapTable
-        keyField="last_name"
+        keyField="id"
         data={filteredData}
         columns={columns}
         rowStyle={{backgroundColor: '#d3d3d3'}}
         striped
       />
+      </div>
       <Modal
         show={showWarning}
         onHide={handleCloseWarning}
@@ -547,7 +558,10 @@ const PersonnelList = () => {
           <Button variant="secondary" onClick={handleCloseWarning}>
             Close
           </Button>
-          <Button variant="warning" onClick={handleDelete}>Delete</Button>
+          <Button variant="warning" onClick={() => {
+          handleDelete()
+          setSearchTerm('')
+        }}>Delete</Button>
         </Modal.Footer>
       </Modal>
     </>

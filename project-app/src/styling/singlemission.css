@@ -7,21 +7,34 @@
   display:flex;
   justify-content: center;
   flex: 4 1 auto;
+  padding: 0.2em;
+  margin-bottom: 0;
 } 
 
 .page-title{
   color:white;
   display:flex;
+  flex-direction: column;
+  align-content: center;
   justify-content: center;
+  margin-top: 10vh;
 }
 
 .mission-card-body{
-  max-height: 100%;
+  max-height: 20vh;
+  display:flex;
+  justify-content: start;
+  margin: 2vw;
+  overflow: auto;
+  padding: 0.5em;
 }
+
 .info-card {
   display:flex;
   justify-content: center;
+  flex-wrap: wrap;
   height: auto;
+  margin-top:5vh;
 }
 
 .members{
@@ -37,13 +50,18 @@
   flex-direction: column;
   margin-bottom: 1em;
   align-items: center;
+  justify-content: center;
 }
 .mission-header{
+  display:flex;
+  align-self: center;
   margin: 1em;
+  margin-bottom: 0.5em;
 }
 .members-title{
   text-align: center;
   text-decoration: underline;
+  position: relative;
 }
 .assigned-teams{
   display:flex;
@@ -58,4 +76,53 @@
   justify-content: center;
   align-content:center;
   flex: auto;
+  margin-bottom: 0;
+}
+
+.card-contents-single {
+  display:flex;
+  justify-content:center;
+}
+
+
+.details-card-body{
+  max-height: 20vh;
+  display:flex;
+  justify-content: start;
+  overflow: auto;
+  margin: 2vw;
+}
+
+.home-button-single {
+  display:flex;
+  align-self:center;
+}
+
+.mission-buttons-header {
+  display:flex;
+  justify-content: center;
+}
+
+.mission-button-single {
+  display:flex;
+  align-self:center;
+  margin-right: 1em;
+  text-decoration: none;
+}
+
+.teams-card-mission-page {
+  height: 15vw;
+  
+}
+.teams-card-body{
+  padding: 1em;
+  max-height: 20vh;
+  width: 100%;
+  display:flex;
+  justify-content: start;
+  overflow: auto;
+  margin: 2vw;
+}
+.assigned-teams {
+  height: 100%;
 }

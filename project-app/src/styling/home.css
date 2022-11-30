@@ -6,6 +6,7 @@
 .card-title{
   color: 'white';
   margin-bottom: 0.7em;
+  text-decoration: underline;
 }
 .home-header-text{
   text-align: center;
@@ -13,7 +14,13 @@
   color:white;
   z-index: 1;
 }
-
+.home-description-text{
+  text-align: center;
+  margin: 1.5em;
+  color:white;
+  z-index: 1;
+  margin-bottom: 2.5em;
+}
 .column{
   display:flex;
   justify-content: center;
@@ -22,4 +29,12 @@
 .card-text.final-text{
   display: flex;
   flex: 2;
+}
+
+.page-container {
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: 100%;
+  margin-top: 10vh;
 }

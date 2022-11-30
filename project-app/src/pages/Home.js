@@ -11,18 +11,18 @@ const Home = () => {
   return (
     <>
     
-  <Container >
+  <Container className='page-container'>
     <Row className='home-header-text'>
       <h1>Welcome!</h1>
     </Row>
-    <Row className='home-header-text'>
+    <Row className='home-description-text'>
       <h4>Please select from the options below to get started.</h4>
     </Row>
     
    <Row className="justify-content-center">
     
     <Col className='column'xs lg="4">
-    <Card bg='dark' text='white'style={{ width: '20rem' }}>
+    <Card border='light' bg='dark' text='white'style={{ width: '20rem' }}>
       <Card.Body className='card-body'>
         <Card.Title className='card-title'>Missions</Card.Title>
         <Card.Text>View all current and projected missions.</Card.Text>
@@ -36,7 +36,7 @@ const Home = () => {
     </Col>
     
     <Col className='column' xs lg="4">
-    <Card bg='dark' text='white' style={{ width: '20rem'}}>
+    <Card border='light' bg='dark' text='white' style={{ width: '20rem'}}>
       <Card.Body className='card-body'>
         <Card.Title className='card-title'>Teams</Card.Title>
         <Card.Text>View all teams.</Card.Text>
@@ -49,9 +49,8 @@ const Home = () => {
     </Card>
     </Col>
     
-
     <Col className='column'xs lg="4">
-    <Card bg='dark' text='white' style={{ width: '20rem' }}>
+    <Card border='light' bg='dark' text='white' style={{ width: '20rem' }}>
       <Card.Body className='card-body'>
         <Card.Title className='card-title'>Personnel</Card.Title>
         <Card.Text>View all deployed personnel.</Card.Text>
@@ -64,7 +63,6 @@ const Home = () => {
     </Card>
     </Col>
  
-   
    </Row>
   </Container>
     

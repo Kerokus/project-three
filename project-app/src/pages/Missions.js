@@ -21,6 +21,11 @@ const Missions = () => {
   const [show, setShow] = useState(false);
   const [formData, setFormData] = useState({});
   const [validated, setValidated] = useState(false);
+
+  // Search Functionality States:
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
+    
   
   //FETCH MISSION DATA
   useEffect(() => {
@@ -35,6 +40,7 @@ const Missions = () => {
           return item;
         });
         setMissionData(dataSlice);
+        setFilteredData(dataSlice);
         return fetch("http://localhost:8081/teams")
       })
       .then((response => response.json()))
@@ -44,6 +50,21 @@ const Missions = () => {
         return [];
       });
   }, [refresh]);
+
+  //Creates new "team_name" column in missions table being rendered
+useEffect(() => {
+  let withTeamNames = missionData.map(mission => {
+    teamData.forEach(team => {
+      if (mission.id === team.mission_id) {
+        mission.team_name = team.name
+      } if (mission.id === 3) {
+        mission.team_name = 'Multiple Teams'
+      }
+    })
+    return mission;
+  })
+  setFilteredData(withTeamNames)
+}, [missionData, teamData])
   
   //Matching missions to teams
   const getTeamInfo = (mission) => {
@@ -63,7 +84,12 @@ const Missions = () => {
     <Card border='light' style={{ width: '20rem' }} key={index} bg='dark' text='white'className="mission-card">
       <Card.Body className='card-body'>
         <Card.Title>{!mission.start_date ? 'Date TBD' : mission.start_date}</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">{getTeamInfo(mission)}</Card.Subtitle>
+        <Card.Subtitle className="mb-2 text-muted">
+        {mission.team_name !== undefined ?
+          'Team : ' + mission.team_name :
+          'Team assignment TBD'
+          }
+          </Card.Subtitle>
         <Card.Text className='card-text'>
           {mission.location}
         </Card.Text>
@@ -73,15 +99,16 @@ const Missions = () => {
           Mission Info
         </Button>
         </Link>
-        <Button variant="danger" onClick={handleDeleteShow}>Delete Mission</Button>
+        <Button variant="danger" onClick={() => {
+          setClickedMission(mission)
+          handleDeleteShow()
+        }}>Delete Mission</Button>
         </div>
       </Card.Body>
     </Card>
     )
   }
 
-  
-  
   //DATA HANDLERS
 
   //Call this to refresh the mission list
@@ -162,22 +189,50 @@ const Missions = () => {
     (new Date(a.start_date) - new Date(b.start_date))
     )
   }
+
+    //// Search Functions////
+
+  // Sets the "Search Term" on change of the search text box (default is "")
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value)
+} 
+
+//Filters the data without having to select a "Search By" Category
+useEffect(() => {
+  let searchArray = [];
+    missionData.forEach((mission) => {
+      let missionDataString = JSON.stringify(mission)
+      if (missionDataString.toLowerCase().includes(searchTerm.toLowerCase())) {
+        searchArray.push(mission)
+      }
+      setFilteredData(searchArray)
+    })
+}, [searchTerm])
   
   return (
     <>
-      <h1 className='header-text'>Upcoming Missions</h1>
-      <div className = 'header-buttons'>
+      <h1 className='header-text'>All Missions</h1>
+      <div className = 'nav-buttons'>
       <Button variant='success' className='add-mission' onClick={handleAdd}>
         Add Mission
       </Button>
-      <Link to='/'>
+      <Link className='homepage-button-personnel' to='/'>
       <Button variant='primary' className='homepage-button'>
         Back to Home
       </Button>
       </Link>
       </div>
+      <div className="mainsearch">
+          <input 
+              className="text-search-bar" 
+              type='text' 
+              placeholder="Search Missions" 
+              onChange={(event) => {handleSearch(event)}}
+              value={searchTerm}
+          />     
+      </div>
       <div className="mission-card-container">
-        {sortMissions([...missionData]).map(renderMissionCard)}
+        {sortMissions([...filteredData]).map(renderMissionCard)}
       </div>
 
       <Modal show={showDelete} onHide={handleDeleteClose}>
@@ -192,7 +247,10 @@ const Missions = () => {
           <Button variant="secondary" onClick={handleDeleteClose}>
             Close
           </Button>
-          <Button variant="warning" onClick={deleteMission}>
+          <Button variant="warning" onClick={() => {
+          deleteMission()
+          setSearchTerm('')
+        }}>
             <Link
               to="/missions"
               style={{ color: "white", textDecoration: "none" }}

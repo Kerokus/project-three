@@ -1,5 +1,6 @@
 import '../styling/singlemission.css'
 import React, { useState, useEffect, useContext } from "react";
+import {useNavigate} from 'react-router-dom';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import MissionContext from "./MissionContext";
@@ -12,6 +13,7 @@ import Row from "react-bootstrap/Row";
 import Badge from 'react-bootstrap/Badge'
 
 const SingleMission = () => {
+  const navigate = useNavigate()
   const { clickedMission, setClickedMission} = useContext(MissionContext)
   const [personnel, setPersonnel] = useState(null)
   const [missionTeamMembers, setMissionTeamMembers] = useState(null)
@@ -64,6 +66,11 @@ const SingleMission = () => {
     setRefresh((current) => !current);
   };
 
+  //missions webpage redirect
+  const navigateToMissions = () => {
+    navigate('/missions');
+  }
+
   //Render check
   const renderCheck = () => {
     if(clickedMission){
@@ -85,6 +92,7 @@ const SingleMission = () => {
       throw new Error()
       }
       handleDeleteClose();
+      navigateToMissions();
     } catch(err){
       console.log(err)
       handleDeleteClose();
@@ -158,6 +166,7 @@ const SingleMission = () => {
           },
           body: JSON.stringify(formData),
         });
+        setClickedMission(formData)
         setFormData({});
         handleEditClose();
         toggleRefresh();
@@ -174,46 +183,63 @@ const SingleMission = () => {
     {renderCheck() ? (
     <>
       <div className='page-title'>
+      
       <h1 className='mission-header'>
       Mission: {clickedMission.location}
       </h1>
+      <div className='mission-buttons-header'>
+        <Link className='mission-button-single'to='/missions'>
+          <Button variant='light' className='homepage-button'>
+            Back to Missions
+          </Button>
+        </Link>
+        <Link className='home-button-single'to='/'>
+          <Button variant='primary' className='homepage-button'>
+            Back to Home
+          </Button>
+        </Link>
+      </div>
       </div>
       <div className='info-card'>
-        <Card className='mission-card-body' bg='dark' text='white' style={{ width: '45rem' }}>
-          <Card.Img variant="top" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Al-Tanf.jpg/1920px-Al-Tanf.jpg" />
-          <Card.Body className='card-contents'>
+        <Card border='light' className='mission-card-body' bg='dark' text='white' style={{ width: '25rem' }}>
+        <div className='mission-details'>
+          <Card.Title className='members-title'>Mission Start Date</Card.Title>
+          {clickedMission.start_date ? <Card.Text className='detail-text'>{clickedMission.start_date}</Card.Text> : <Card.Text className='detail-text'>No date available</Card.Text>}
+        </div>
+        <div className='mission-details'>
+          <Card.Title className='members-title'>Mission End Date</Card.Title>
+          {clickedMission.end_date ? <Card.Text className='detail-text'>{clickedMission.end_date}</Card.Text> : <Card.Text className='detail-text'>No date available</Card.Text>}
+        </div>
+        </Card>
+
+        <Card border='light' className='details-card-body' bg='dark' text='white' style={{ width: '25rem' }}>
+          <Card.Body className='card-contents-single'>
             <div className='mission-details'>
               <Card.Title className='members-title'>Mission Details</Card.Title>
               <Card.Text className='detail-text'>
-                {clickedMission.description}
+              {clickedMission.description}
               </Card.Text>
             </div>
-            <div className='mission-details'>
-              <Card.Title className='members-title'>Mission Start Date</Card.Title>
-              {clickedMission.start_date ? <Card.Text className='detail-text'>{clickedMission.start_date}</Card.Text> : <Card.Text className='detail-text'>No date available</Card.Text>}
-            </div>
-            <div className='mission-details'>
-              <Card.Title className='members-title'>Mission End Date</Card.Title>
-              {clickedMission.end_date ? <Card.Text className='detail-text'>{clickedMission.end_date}</Card.Text> : <Card.Text className='detail-text'>No date available</Card.Text>}
-            </div>
-             <Card.Title className='members-title'>Assigned Teams</Card.Title>
-            <div className='assigned-teams'>
-             {missionTeams ? (missionTeams.length ? (missionTeams.map(team => <Card.Text className='detail-text'>{team.name}</Card.Text>)) : <Card.Text className='detail-text'>No teams assigned</Card.Text>) : <Card.Text className='detail-text'>Could not load team data.</Card.Text>}
-            </div>
-            <Card.Title className='members-title'>Assigned Members</Card.Title>
-            <div className='members'>
-              {missionTeamMembers ? (missionTeamMembers.length ? (missionTeamMembers.map(individual => {
-                return(
-                  <Card.Text className='team-text'>{individual.first_name.concat(" ", individual.last_name)}, {individual.rank}, {individual.mos}</Card.Text>
-                )}
-              )) : <Card.Text className='team-text'>No team members.</Card.Text>) : <p>Could not load team data.</p>}
-              
-              </div>
             <div className='buttons'>
-              <Button variant="primary" onClick={handleShowEdit}>Edit Mission Details</Button>
+              <Button variant="success" onClick={handleShowEdit}>Edit Mission Details</Button>
               <Button variant="danger" onClick={handleDeleteShow}>Delete Mission</Button>
             </div>
           </Card.Body>
+        </Card>
+    
+        <Card border='light' className='teams-card-body' bg='dark' text='white' style={{ width: '25rem' }}>
+          <Card.Title className='members-title'>Assigned Teams</Card.Title>
+            <div className='assigned-teams'>
+             {missionTeams ? (missionTeams.length ? (missionTeams.map(team => <Card.Text className='detail-text'>{team.name}</Card.Text>)) : <Card.Text className='detail-text'>No teams assigned</Card.Text>) : <Card.Text className='detail-text'>Could not load team data.</Card.Text>}
+            </div>
+          <Card.Title className='members-title'>Assigned Members</Card.Title>
+            <div className='members'>
+              {missionTeamMembers ? (missionTeamMembers.length ? (missionTeamMembers.map(individual => {
+                return(
+                  <Card.Text className='team-text'>| {individual.first_name.concat(" ", individual.last_name)}, {individual.rank}, {individual.mos} |</Card.Text>
+                )}
+              )) : <Card.Text className='team-text'>No team members.</Card.Text>) : <p>Could not load team data.</p>}
+            </div>
         </Card>
       </div>
 
@@ -227,7 +253,7 @@ const SingleMission = () => {
             Close
           </Button>
           <Button variant="primary" onClick={deleteMission}>
-            <Link to='/missions' style={{color: 'white', textDecoration: 'none'}}>Delete Mission</Link>
+            Delete Mission
           </Button>
         </Modal.Footer>
       </Modal>
