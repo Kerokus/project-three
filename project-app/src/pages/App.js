@@ -3,19 +3,19 @@ import React, { useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Routes, Route} from 'react-router-dom';
 import '../styling/app.css';
+import NavbarComponent from "../components/NavbarComponent";
+import FooterComponent from '../components/FooterComponent';
+import TeamContext from "./TeamsContext";
+import MissionContext from "./MissionContext";
 
 //import pages
 import Home from "./Home";
 import Missions from "./Missions";
 import Teams from "./Teams";
-import NavbarComponent from "../components/NavbarComponent";
 import SingleMission from "./SingleMission";
 import SingleTeam from "./SingleTeam";
-import SinglePerson from "./SinglePerson"
+import SinglePerson from "./SinglePerson";
 import PersonnelList from "./PersonnelList";
-import TeamContext from "./TeamsContext";
-import MissionContext from "./MissionContext"
-import FooterComponent from '../components/FooterComponent'
 
 function App() {
   const [clickedMission, setClickedMission] = useState(null)

@@ -202,11 +202,11 @@ const SingleMission = () => {
       </div>
       <div className='info-card'>
         <Card border='light' className='mission-card-body' bg='dark' text='white' style={{ width: '25rem' }}>
-        <div className='mission-details'>
+        <div className='mission-dates'>
           <Card.Title className='members-title'>Mission Start Date</Card.Title>
           {clickedMission.start_date ? <Card.Text className='detail-text'>{clickedMission.start_date}</Card.Text> : <Card.Text className='detail-text'>No date available</Card.Text>}
         </div>
-        <div className='mission-details'>
+        <div className='mission-dates'>
           <Card.Title className='members-title'>Mission End Date</Card.Title>
           {clickedMission.end_date ? <Card.Text className='detail-text'>{clickedMission.end_date}</Card.Text> : <Card.Text className='detail-text'>No date available</Card.Text>}
         </div>
