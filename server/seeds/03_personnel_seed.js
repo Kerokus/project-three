@@ -6,9 +6,9 @@ exports.seed = async function(knex) {
   // Deletes ALL existing entries
   await knex('personnel').del()
   await knex('personnel').insert([
-    {id: 1, first_name: 'Joe', last_name: 'Snuffy', rank: 'PFC', mos: '35L', dep_start: null, dep_end: null, contact: 'exampleEmail1@email.com', team_id: 1},
-    {id: 2, first_name: 'John', last_name: 'Johnson', rank: 'SPC', mos: '35G', dep_start: null, dep_end: null, contact: 'exampleEmail2@email.com', team_id: 1},
-    {id: 3, first_name: 'Bill', last_name: 'Kidd', rank: 'SFC', mos: '35M', dep_start: null, dep_end: null, contact: 'exampleEmail1@email.com', team_id: 1},
+    {id: 1, first_name: 'Joe', last_name: 'Snuffy', rank: 'PFC', mos: '35L', dep_start: '2022-01-01', dep_end: '2022-09-01', contact: 'exampleEmail1@email.com', team_id: 1},
+    {id: 2, first_name: 'John', last_name: 'Johnson', rank: 'SPC', mos: '35G', dep_start: '2022-01-01', dep_end: '2022-09-01', contact: 'exampleEmail2@email.com', team_id: 1},
+    {id: 3, first_name: 'Bill', last_name: 'Kidd', rank: 'SFC', mos: '35M', dep_start: '2022-01-01', dep_end: '2022-09-01', contact: 'exampleEmail1@email.com', team_id: 1},
     {id: 4, first_name: 'Susan', last_name: 'Susanson', rank: 'SPC', mos: '35T', dep_start: '2022-07-22', dep_end: '2023-07-22', contact: 'exampleEmail1@email.com', team_id: 2},
     {id: 5, first_name: 'Karen', last_name: 'Puckett', rank: 'SPC', mos: '35M', dep_start: '2022-07-22', dep_end: '2023-07-22', contact: 'exampleEmail1@email.com', team_id: 2},
     {id: 6, first_name: 'Oscar', last_name: 'De La Hoya', rank: 'SSG', mos: '35L', dep_start: '2022-07-22', dep_end: '2023-07-22', contact: 'exampleEmail1@email.com', team_id: 2},
